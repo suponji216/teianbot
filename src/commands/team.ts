@@ -9,11 +9,8 @@ const commandData: ApplicationCommandDataResolvable = {
 
 const command = async (interaction: ChatInputCommandInteraction) => {
     const member = (interaction.member as GuildMember)
-
     const teams = createTeam(member.voice.channel?.members.map(member => member) as GuildMember[], member.guild.channels.cache.filter(channel => channel.isVoiceBased() && channel.id !== member.guild.afkChannelId).map(channel => channel) as VoiceBasedChannel[], 5, 5);
-
     for (const team of teams) await team.toChannel();
-
 }
 
 const data: TeianbotType = { commandData: commandData, command: command }
@@ -37,7 +34,7 @@ class Team {
 
 const createTeam = (members: GuildMember[], channels: VoiceBasedChannel[], ...n: number[]) => {
     const total = n.reduce((prev, curr) => prev + curr);
-    if (members.length < total) throw Error('人数が足りない');
+    if (members.length < total) throw Error('人数が足りないヨ！');
 
     const membersList = getMembers(shuffler(members), n);
     const channelList = getChannels(shuffler(channels), n.length);

@@ -2,5 +2,5 @@ import { ApplicationCommandDataResolvable, ChatInputCommandInteraction } from "d
 
 export type TeianbotType = {
     commandData: ApplicationCommandDataResolvable
-    command: (interaction: ChatInputCommandInteraction) => void
+    command: (interaction: ChatInputCommandInteraction) => Promise<void>
 }

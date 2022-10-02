@@ -7,14 +7,19 @@ const client = new Client({
 
 
 client.once('ready', async () => {
-    await client.application?.commands.set(commands.map(item => item.commandData), '794097946391216128');
+    await client.application?.commands.set(commands.map(item => item.commandData));
 })
 
 client.on('interactionCreate', async (interaction: Interaction) => {
     commands.forEach(async (value) => {
         if ('name' in value.commandData)
             if (value.commandData.name === (interaction as ChatInputCommandInteraction).commandName)
-                value.command(interaction as ChatInputCommandInteraction);
+                try {
+                    await value.command(interaction as ChatInputCommandInteraction);
+                } catch (error) {
+                    if (error instanceof Error) interaction.channel?.send(error.message);
+                    else interaction.channel?.send('なんかエラー出たｗ');
+                }
     })
 });
 
