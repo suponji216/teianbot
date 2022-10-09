@@ -1,5 +1,5 @@
 import { ApplicationCommandDataResolvable, ApplicationCommandType, ChannelType, ChatInputCommandInteraction, GuildMember, VoiceBasedChannel } from "discord.js";
-import { TeianbotType } from "./type";
+import { TeianbotType } from "./index";
 
 const commandData: ApplicationCommandDataResolvable = {
     name: '5v5',

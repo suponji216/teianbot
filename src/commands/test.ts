@@ -1,5 +1,5 @@
 import { ApplicationCommandDataResolvable, ApplicationCommandType, ChatInputCommandInteraction } from "discord.js";
-import { TeianbotType } from "./type";
+import { TeianbotType } from "./index";
 
 const commandData: ApplicationCommandDataResolvable = {
     name: 'test',
