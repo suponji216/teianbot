@@ -18,7 +18,7 @@ client.on('interactionCreate', async (interaction: Interaction) => {
                     await value.command(interaction as ChatInputCommandInteraction);
                 } catch (error) {
                     if (error instanceof Error) interaction.channel?.send(error.message);
-                    else interaction.channel?.send('なんかエラー出たｗ');
+                    else interaction.channel?.send('なんかエラー出たｗざっこｗ');
                 }
     })
 });
