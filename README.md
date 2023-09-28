@@ -1,0 +1,8 @@
+# TEIANBOT
+
+## ENV
+
+-   NODE_ENV
+-   DISCORD_TOKEN
+-   DATABASE_URL
+-   DIRECT_URL(optional)
