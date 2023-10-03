@@ -15,6 +15,7 @@ model User {
   id        Int     @id @default(autoincrement())
   discordId String  @unique
   Inout     Inout[]
+  Chat      Chat[]
 }
 
 model Channel {
@@ -22,12 +23,24 @@ model Channel {
   discordId String  @unique
   type      String
   Inout     Inout[]
+  Chat      Chat[]
 }
 
 model Inout {
   id        Int      @id @default(autoincrement())
   type      String
   date      DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+  channel   Channel  @relation(fields: [channelId], references: [id])
+  userId    Int
+  channelId Int
+}
+
+model Chat {
+  id        Int      @id @default(autoincrement())
+  count     Int
+  mentioned Int
+  date      DateTime
   user      User     @relation(fields: [userId], references: [id])
   channel   Channel  @relation(fields: [channelId], references: [id])
   userId    Int
