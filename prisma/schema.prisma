@@ -32,8 +32,11 @@ model Inout {
   date      DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id])
   channel   Channel  @relation(fields: [channelId], references: [id])
+  pair      Inout?   @relation("pair", fields: [pairId], references: [id])
+  paired    Inout?   @relation("pair")
   userId    Int
   channelId Int
+  pairId    Int?     @unique
 }
 
 model Chat {
