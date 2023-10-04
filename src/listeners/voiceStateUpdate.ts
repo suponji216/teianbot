@@ -1,8 +1,21 @@
 import { ApplyOptions } from '@sapphire/decorators';
-import { Listener, ListenerOptions, ok } from '@sapphire/framework';
+import { Listener, ListenerOptions, ok, err } from '@sapphire/framework';
 import { VoiceState } from 'discord.js';
 import { prisma } from '../lib/prisma';
 import { client } from '..';
+
+type Channel = {
+	id: number;
+	discordId: string;
+	type: string;
+	name: string | null;
+};
+
+type Member = {
+	id: number;
+	discordId: string;
+	name: string | null;
+};
 
 @ApplyOptions<ListenerOptions>({})
 export class UserEvent extends Listener {
@@ -11,31 +24,51 @@ export class UserEvent extends Listener {
 	public override async run(oldState: VoiceState, newState: VoiceState) {
 		if (oldState.channelId === null && newState.channelId !== null) {
 			const { member, channel } = await this.dataCheck(newState.id, newState.channelId);
-			const inout = await prisma.inout.create({ data: { userId: member.id, channelId: channel.id, type: 'connect' } });
-			this.connection.push({ inout: inout.id, discordId: member.discordId });
+			await this.connect(member, channel);
 		} else if (oldState.channelId !== null && newState.channelId === null) {
 			const { member, channel } = await this.dataCheck(oldState.id, oldState.channelId);
-			const pair = this.getPairId(member.discordId);
-			const disconnect = await prisma.inout.create({
-				data: { userId: member.id, channelId: channel.id, type: 'disconnect', pairId: pair.inout }
-			});
-			await prisma.inout.update({ where: { id: pair.inout }, data: { pairId: disconnect.id } });
+			await this.disconnect(member, channel);
 		} else if (oldState.channelId !== null && newState.channelId !== null && oldState.channelId !== newState.channelId) {
 			const oldData = await this.dataCheck(newState.id, newState.channelId);
 			const newData = await this.dataCheck(oldState.id, oldState.channelId);
-			const pair = this.getPairId(oldData.member.discordId);
-			await prisma.inout.create({
-				data: { userId: oldData.member.id, channelId: oldData.channel.id, type: 'disconnect', pairId: pair.inout }
-			});
-			await prisma.inout.create({ data: { userId: newData.member.id, channelId: newData.channel.id, type: 'connect' } });
+			await this.move(oldData, newData);
 		} else {
 		}
 	}
 
+	private async connect(member: Member, channel: Channel) {
+		try {
+			const inout = await prisma.inout.create({ data: { userId: member.id, channelId: channel.id, type: 'connect' } });
+			this.connection.push({ inout: inout.id, discordId: member.discordId });
+			return ok();
+		} catch {
+			return err();
+		}
+	}
+	private async disconnect(member: Member, channel: Channel) {
+		const pair = this.getPairId(member.discordId);
+		if (pair.isOk()) {
+			const disconnect = await prisma.inout.create({
+				data: { userId: member.id, channelId: channel.id, type: 'disconnect', pairId: pair.unwrap().inout }
+			});
+			await prisma.inout.update({ where: { id: pair.unwrap().inout }, data: { pairId: disconnect.id } });
+		}
+	}
+
+	private async move(oldData: { member: Member; channel: Channel }, newData: { member: Member; channel: Channel }) {
+		await this.disconnect(oldData.member, oldData.channel);
+		await this.connect(newData.member, newData.channel);
+	}
+
 	private getPairId(discordId: string) {
-		const pairIndex = this.connection.findIndex((c) => c.discordId === discordId);
-		const pair = this.connection.slice(pairIndex, 1)[0];
-		return pair;
+		try {
+			const pairIndex = this.connection.findIndex((c) => c.discordId === discordId);
+			if (pairIndex < 0) throw Error;
+			const pair = this.connection.splice(pairIndex, 1)[0];
+			return ok(pair);
+		} catch {
+			return err();
+		}
 	}
 
 	private async dataCheck(memberId: string, channelId: string) {
