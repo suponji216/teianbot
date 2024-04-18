@@ -4,7 +4,7 @@ After=network.target
 ConditionPathExists=/opt/teianbot
 [Service]
 WorkingDirectory=/opt/teianbot
-ExecStart=/opt/teianbot/start.sh
+ExecStart=/opt/teianbot/linux/start.sh
 Type=simple
 Restart=always
 [Install]
