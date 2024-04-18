@@ -1,0 +1,11 @@
+[Unit]
+Description=teianbot
+After=network.target
+ConditionPathExists=/opt/teianbot
+[Service]
+WorkingDirectory=/opt/teianbot
+ExecStart=/opt/teianbot/start.sh
+Type=simple
+Restart=always
+[Install]
+WantedBy=default.target
